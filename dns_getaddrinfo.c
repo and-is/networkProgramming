@@ -5,8 +5,6 @@
 
 int main(){
 struct addrinfo hints;
-memset(&hints, 0, sizeof(hints));
-hints.ai_flags = AI_ALL;
 struct addrinfo *peer_address;
 if(getaddrinfo("example.com", 0, &hints, &peer_address)){
 	fprintf(stderr, "getaddrinfo() failed. (%d)\n", GETSOCKETERRNO());
@@ -20,3 +18,5 @@ do {
 freeaddrinfo(peer_address);
 return 0;
 }
+
+
