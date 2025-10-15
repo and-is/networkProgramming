@@ -78,4 +78,61 @@ same as no. 3 but specifically for IPv4 addresses
         char __ss_pad2[_SS_PAD2SIZE];
     };
 ```
+### Conversion Functions
+1. `inet_pton()` 
+- converts an IP address in its standard form (presentation) into binary form (network).
+- `int inet_pton(int af, const char *src, void *dst);`
+   - af: address family (`AF_INET` for IPv4, `AF_INET6` for IPv6)
+   - src: pointer to the null-terminated string containing the IP address in presentation format
+   - dst: pointer to a buffer where the function will store the binary representation of the IP address
+   - returns 1 on success, 0 if the input is not a valid IP address, and -1 if an error occurs.
+2. `inet_ntop()`
+- converts an IP address from its binary form (network) to its standard form (presentation).
+- `const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);`
+   - af: address family (`AF_INET` for IPv4, `AF_INET6` for IPv6)
+   - src: pointer to the buffer containing the binary representation of the IP address
+   - dst: pointer to a buffer where the function will store the null-terminated string containing the IP address in presentation format
+   - size: size of the buffer pointed to by dst, can use `INET_ADDRSTRLEN` for IPv4 and `INET6_ADDRSTRLEN` for IPv6
+   - returns a pointer to the destination buffer (dst) on success, or NULL if an error occurs.
+
+### System Calls
+1. `getaddrinfo()`
+- DNS and service name lookups.
+- `int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);`
+   - node: hostname or IP address to be resolved, can be NULL if service is specified and `AI_PASSIVE` flag is set in hints
+   - service: service name or port number to be resolved, can be NULL if node is specified
+   - hints: pointer to a struct addrinfo that specifies criteria for selecting the socket address structures returned in res
+   - res: pointer to a pointer that will point to a linked list of struct addrinfo structures containing the results of the lookup
+   - returns 0 on success, or a non-zero error code on failure.
+
+2. `socket()`
+- creates a new socket.
+- `int socket(int domain, int type, int protocol)`
+- domain is `PF_INET` for IPv4, `PF_INET6` for IPv6
+- type is `SOCK_STREAM` for TCP, `SOCK_DGRAM` for UDP
+- protocol is usually set to 0 to select the default protocol for the given domain and type, can be TCP or UDP.
+- returns a socket descriptor (a small integer) on success, or -1 on failure.
+
+3. `bind()`
+- assigns a local port address to a socket to listen for incoming connections or datagrams.- `int bind(int sockfd, struct sockaddr *addr, int addrlen);`
+   - sockfd: socket descriptor returned by socket()
+   - addr: pointer to a struct sockaddr containing the address to bind to (your address and port)
+   - addrlen: length of the address structure pointed to by addr
+   - returns 0 on success, or -1 on failure.
+
+4. `connect()`
+- establishes a connection to a remote socket.
+- `int connect(int sockfd, struct sockaddr *addr, int addrlen);`
+   - sockfd: socket descriptor returned by socket()
+   - addr: pointer to a struct sockaddr containing the address of the remote socket to connect to (server's address and port)
+   - addrlen: length of the address structure pointed to by addr
+   - returns 0 on success, or -1 on failure.
+
+5. `listen()`
+- wait for incoming connections on a socket.
+- int listen(int sockfd, int backlog);
+   - sockfd: socket descriptor returned by socket() and bound to a local address using bind()
+   - backlog: maximum number of pending connections that can be queued up before connections are refused. connections keep on being queued until they are `accept()`ed.
+   - returns 0 on success, or -1 on failure.
+
 
