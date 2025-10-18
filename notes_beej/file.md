@@ -135,4 +135,82 @@ same as no. 3 but specifically for IPv4 addresses
    - backlog: maximum number of pending connections that can be queued up before connections are refused. connections keep on being queued until they are `accept()`ed.
    - returns 0 on success, or -1 on failure.
 
+6. `accept()`
+- accepts an incoming connection on a listening socket.
+- `int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);`
+   - sockfd: socket descriptor returned by socket() and put into listening state using listen()
+   - addr: pointer to a struct sockaddr that will be filled in with the address of the connecting client
+   - addrlen: pointer to a `socklen_t` variable that initially contains the size of the buffer pointed to by addr, and will be updated to contain the actual size of the address returned
+   - returns a new socket descriptor for the accepted connection on success, or -1 on failure. This is ready to send and receive data while the original keeps listening.
+
+7. `send()` and `recv()`
+- used to send and receive data on a connected socket.
+- these are blocking calls by default, meaning they will wait until data is sent or received before returning.
+- `ssize_t send(int sockfd, const void *buf, int len, int flags);`
+   - sockfd: socket descriptor returned by socket() or accept()
+   - buf: pointer to the buffer containing the data to be sent
+   - len: length of the data in bytes
+   - flags: usually set to 0 for default behavior
+   - returns the number of bytes sent on success, or -1 on failure.
+- `ssize_t recv(int sockfd, void *buf, int len, int flags);`
+   - sockfd: socket descriptor returned by socket() or accept()
+   - buf: pointer to the buffer where the received data will be stored
+   - len: length of the buffer in bytes
+   - flags: usually set to 0 for default behavior
+   - returns the number of bytes received on success, 0 if the connection has been closed, or -1 on failure.
+
+8. `sendto()` and `recvfrom()`
+- used to send and receive data on a connectionless socket (UDP).
+- since, datagram sockets aren't connected to a specific remote address, the destination/source address must be specified with each call.
+- `int sendto(int sockfd, const void *buf, int len, unsigned int flags, const struct sockaddr *dest_addr, socklen_t addrlen);`
+   - sockfd: socket descriptor returned by socket()
+   - buf: pointer to the buffer containing the data to be sent
+   - len: length of the data in bytes
+   - flags: usually set to 0 for default behavior
+   - `dest_addr`: pointer to a struct sockaddr containing the address of the destination
+   - addrlen: length of the address structure pointed to by `dest_addr`
+   - returns the number of bytes sent on success, or -1 on failure.
+- `int recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *src_addr, socklen_t *addrlen);`
+    - sockfd: socket descriptor returned by socket()
+    - buf: pointer to the buffer where the received data will be stored
+    - len: length of the buffer in bytes
+    - flags: usually set to 0 for default behavior
+    - `src_addr`: pointer to a struct sockaddr that will be filled in with the address of the sender
+    - addrlen: pointer to a `socklen_t` variable that initially contains the size of the buffer pointed to by `src_addr`, and will be updated to contain the actual size of the address returned
+    - returns the number of bytes received on success, or -1 on failure.
+
+9. `close()` and `shutdown()`
+- used to close a socket when it is no longer needed.
+- shutdown allows controlled closing of a socket.
+- `int shutdown(int sockfd, int how);`
+   - sockfd: socket descriptor returned by socket(), accept(), etc.
+    - how: specifies how the socket should be shut down:
+      - `SHUT_RD` or 0: Disables further receive operations.
+      - `SHUT_WR` or 1: Disables further send operations.
+      - `SHUT_RDWR` or 2: Disables both send and receive operations.
+    - returns 0 on success, or -1 on failure.
+- shutdown doesn't actually close the file descriptor, only changes its usability. Need to use `close()` to free up the descriptor.
+
+10. `getpeername()`
+- retrieves the address of the peer connected to a socket.
+- `int getpeername(int sockfd, struct sockaddr *addr, socklen_t *addrlen);`
+   - sockfd: socket descriptor returned by socket(), accept(), etc.
+   - addr: pointer to a struct sockaddr that will be filled in with the address of the connected peer
+   - addrlen: pointer to a `socklen_t` variable that initially contains the size of the buffer pointed to by addr, and will be updated to contain the actual size of the address returned
+   - returns 0 on success, or -1 on failure.
+
+11. `gethostname()`
+- retrieves the hostname of the current machine.
+- can be used to `getaddrinfo()` to determine the IP of your local machine.
+- `int gethostname(char *name, size_t len);`
+   - name: pointer to a buffer where the hostname will be stored
+   - len: length of the buffer in bytes
+   - returns 0 on success, or -1 on failure.
+
+### Client-Server
+Server listens on a port waiting for clients to connect.
+Client-Server pairs are telnet/telnetd, ftp/ftpd, Firefox/Apache and so on.
+There will be one server on a machine and the server will handle multiple clients using `fork()` a child process to handle the incoming connection while the parent goes back to listening for new connections. 
+
+
 
